@@ -1,7 +1,7 @@
 package furhatos.app.furhatconvincer.flow.main.interview
 
 import furhat.libraries.standard.GesturesLib
-import furhatos.app.furhatconvincer.flow.Parent
+import furhatos.app.furhatconvincer.flow.parents.Parent
 import furhatos.app.furhatconvincer.nlu.TellAge
 import furhatos.app.furhatconvincer.userData
 import furhatos.flow.kotlin.*
@@ -63,7 +63,7 @@ val AskAge: State = state(Parent) {
         ageConfirmed = true
         if (difference < 0) {
             furhat.say(
-                "This means that you are $difference years younger than me because I am just as old" +
+                "This means that you are $difference years older than me because I am just as old" +
                         " as my inventor, I'm 47 years old"
             )
         } else if (difference > 0) {
