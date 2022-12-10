@@ -3,9 +3,9 @@ package furhatos.app.furhatconvincer
 import furhatos.app.furhatconvincer.flow.main.Idle
 import furhatos.app.furhatconvincer.setting.distanceToEngage
 import furhatos.app.furhatconvincer.setting.maxNumberOfUsers
-import furhatos.skills.Skill
 import furhatos.flow.kotlin.*
 import furhatos.flow.kotlin.voice.Voice
+import furhatos.skills.Skill
 
 class FurhatconvincerSkill : Skill() {
     override fun start() {
@@ -17,7 +17,7 @@ fun main(args: Array<String>) {
     Skill.main(args)
 }
 
-val Init : State = state() {
+val Init: State = state {
     init {
         /** Set our default interaction parameters */
         users.setSimpleEngagementPolicy(distanceToEngage, maxNumberOfUsers)
