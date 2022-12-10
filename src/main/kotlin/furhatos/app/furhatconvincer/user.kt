@@ -1,13 +1,15 @@
 package furhatos.app.furhatconvincer
 
-import furhatos.nlu.common.Number
 import furhatos.records.User
+import furhatos.nlu.common.Number
 
 class UserData(
     var name: String? = null,
     var age: Number? = null,
-    var tickets: Int = 0
+    var tickets: Int = 0,
+    var didBarking: Boolean = false,
+    var ranAroundTable: Boolean = false
 )
 
-val User.userData: UserData
+val User.userData : UserData
     get() = data.getOrPut(UserData::class.qualifiedName, UserData())
