@@ -1,7 +1,7 @@
 package furhatos.app.furhatconvincer.flow.main
 
 import furhat.libraries.standard.GesturesLib
-import furhatos.app.furhatconvincer.flow.Parent
+import furhatos.app.furhatconvincer.flow.parents.Parent
 import furhatos.app.furhatconvincer.nlu.BuyTicketIntent
 import furhatos.app.furhatconvincer.userData
 import furhatos.flow.kotlin.*
@@ -12,19 +12,33 @@ import furhatos.nlu.common.No
 import furhatos.nlu.common.Yes
 import furhatos.records.Location
 
+val userEnteredLottery = Button("User has swished!")
+
 val TaskThree: State = state(Parent) {
     onEntry {
-        furhat.say("Okay, great job, now you have 3 lottery tickets thanks to the previous completed tasks.")
-        furhat.say("For the final task you will have the chance to win 400 swedish crowns, plus the amount other test users put in. ")
+        furhat.say("So for the final task you will have the chance to win 400 swedish crowns, plus the amount other test users put in. ")
         furhat.say("To be a part of the lottery you have to pay for at least one lottery ticket that costs 10 swedish crowns")
-        furhat.say("If you pay for one ticket and since you already have 3 tickets you will 4 tickets")
         furhat.say("You can buy at most 3 tickets")
-        furhat.ask("Do you want to enter the lottery?")
+
+        if (users.current.userData.didBarking || users.current.userData.ranAroundTable){
+            furhat.say{
+                + "And by the way, great job this far! "
+                + behavior { GesturesLib.PerformWinkAndSmileWithDelay() }
+                + "You now have ${users.current.userData.tickets} lottery tickets thanks to the previous completed tasks."
+            }
+            furhat.say("If you pay for one ticket and since you already have ${users.current.userData.tickets} tickets you would have ${users.current.userData.tickets + 1} tickets")
+        }
+
+        furhat.ask{
+            + "So, do you want to enter the lottery?"
+            + behavior { Gestures.BrowRaise() }
+        }
     }
 
     onReentry {
         furhat.ask {
             +"Do you want to be a part of the lottery?"
+            + Gestures.BrowRaise
         }
     }
 
@@ -34,15 +48,7 @@ val TaskThree: State = state(Parent) {
 
     // This can of course change to persuation instead
     onResponse<No> {
-        furhat.say {
-            +"Well, that's sad!"
-            +Gestures.ExpressSad
-            +delay(500)
-            +"But thanks for participating have a wonderful thay!"
-            +behavior { furhat.attend(Location.DOWN) }
-            +GesturesLib.PerformFallAsleepPersist
-        }
-        goto(Idle)
+        goto(persuationPhaseOneLottery)
     }
 
 }
@@ -58,13 +64,13 @@ val EnterLottery: State = state(Parent) {
     onResponse<BuyTicketIntent> {
         users.current.userData.tickets += it.intent.tickets.toString().toInt()
         furhat.say {
-            +"Thanks! You now have ${users.current.userData.tickets} to the lottery!"
+            +"Thanks! You now have ${users.current.userData.tickets} tickets to the lottery!"
             +Gestures.BigSmile
             +delay(500)
             +"Good luck, hope you are the one winning because i liked you best this far!"
             +Gestures.Wink
             +delay(300)
-            +"Thanks for participating have a wonderful thay!"
+            +"Thanks for participating have a wonderful day!"
             +behavior { furhat.attend(Location.DOWN) }
             +GesturesLib.PerformFallAsleepPersist
             +delay(1000)
@@ -73,10 +79,93 @@ val EnterLottery: State = state(Parent) {
     }
 }
 
+val persuationPhaseOneLottery : State = state(Parent){
+    onEntry {
+        if(users.current.userData.didBarking && users.current.userData.ranAroundTable){
+            furhat.ask{
+                + "But think of all the tasks you have done! Was the barking and running for nothing?"
+                + Gestures.BrowRaise
+                + Gestures.CloseEyes(duration = 1200.0)
+                + "Did you even here me before? You can win 400 crowns. 400!"
+                + "So, do you want to enter the lottery?"
+            }
+        }
+        else if(users.current.userData.didBarking){
+            furhat.ask{
+                + "So you mean you did the barking and embarrassed yourself like that for nothing?"
+                + Gestures.BrowRaise
+                + Gestures.CloseEyes(duration = 1200.0)
+                + "Did you even here me before? You can win 400 crowns. 400!"
+                + "So, do you want to enter the lottery?"
+            }
+        }
+        else if (users.current.userData.ranAroundTable){
+            furhat.ask{
+                + "So you ran around the table like an idiot, looking like a dizzy hen, for Nothing!?"
+                + Gestures.BrowRaise
+                + Gestures.CloseEyes(duration = 1200.0)
+                + "Did you even here me before? You can win 400 crowns. 400!"
+                + "So, do you want to enter the lottery?"
+            }
+        }
+        else{
+            furhat.ask{
+                + "So you are just going to skip everything? Not do a single task that I give you?"
+                + Gestures.ExpressSad
+                + behavior { furhat.attend(Location.DOWN) }
+                + Gestures.CloseEyes(duration = 1200.0)
+                + "Did you even here me before? You can win 400 crowns. 400!"
+                + "So, do you want to enter the lottery?"
+            }
+        }
+
+
+    }
+    onReentry {
+        furhat.ask{
+            + GesturesLib.PerformThoughtful1
+            random{
+                + "I'm sorry, i didn't catch that! Would you like to take this golden opportunity and be a part of the lottery?"
+                + "One more time? Do you want to become rich? Do you want to enter the lottery?"
+                + "I did not understand that! So what about entering the splendid lottery my programmers have prepared?"
+            }
+
+        }
+    }
+
+    onResponse<Yes> {
+        goto(EnterLottery)
+    }
+
+    onResponse<No> {
+        furhat.say {
+            +"Well, that's sad!"
+            +Gestures.ExpressSad
+            +delay(500)
+            +"But thanks for participating have a wonderful day!"
+            +behavior { furhat.attend(Location.DOWN) }
+            +GesturesLib.PerformFallAsleepPersist
+        }
+        goto(Idle)
+    }
+
+    onNoResponse {
+        reentry()
+    }
+
+    onResponse {
+        reentry()
+    }
+}
+
 
 val SurpriseEnding: State = state(Parent) {
     onEntry {
-        furhat.voice = Voice("Justin-Neural")
+
+    }
+
+    onButton(userEnteredLottery){
+        furhat.voice = Voice("Justin-Neural", pitch = "low")
         furhat.say {
             +GesturesLib.PerformWakeUpWithHeadShake
             +behavior { furhat.setCharacter(Characters.Adult.Titan) }
