@@ -1,13 +1,17 @@
 package furhatos.app.furhatconvincer.flow.main
 
 import furhat.libraries.standard.GesturesLib
-import furhatos.app.furhatconvincer.flow.Parent
+import furhatos.app.furhatconvincer.flow.parents.Parent
 import furhatos.app.furhatconvincer.nlu.okIntent
 import furhatos.app.furhatconvincer.userData
 import furhatos.flow.kotlin.*
+import furhatos.flow.kotlin.voice.PollyVoice
+import furhatos.flow.kotlin.voice.Voice
 import furhatos.gestures.Gestures
 import furhatos.nlu.common.No
 import furhatos.nlu.common.Yes
+import furhatos.util.Gender
+import furhatos.util.Language
 
 val taskTwoCompleted = Button("Task completed, 1 ticket!")
 val taskTwoWellCompleted = Button("Task completed, 2 tickets!")
@@ -63,21 +67,37 @@ val TryingTaskTwo: State = state(Parent) {
     }
 
     onButton(taskTwoCompleted) {
+        furhat.voice = Voice(gender = Gender.FEMALE, language = Language.CATALAN, pitch = "high", rate = 1.1)
         furhat.say {
-            +"Hahaha great, you sounded like a real dog! Now let us move on to the final task"
+            +"Hahaha great, you sounded like a real dog! That was awesome! Hahahahahahaha!"
             +GesturesLib.PerformBigSmile1
+            + delay(1000)
+        }
+        furhat.voice = PollyVoice.Matthew()
+        furhat.say{
+            +"Hrm, excuse me! That was just so good that i got a bit excited! Lets move on to the final task!"
+            + Gestures.GazeAway
         }
         users.current.userData.tickets++
+        users.current.userData.didBarking = true
         goto(TaskThree)
     }
 
     onButton(taskTwoWellCompleted) {
+        furhat.voice = Voice(gender = Gender.FEMALE, language = Language.CATALAN, pitch = "high", rate = 1.1)
         furhat.say {
-            +"Hahaha great, you sounded like a real dog! Now let us move on to the final task"
+            +"Hahaha great, you sounded like a real dog! That was awesome! Hahahahahahaha!"
             +GesturesLib.PerformBigSmile1
+            + delay(1000)
+        }
+        furhat.voice = PollyVoice.Matthew()
+        furhat.say{
+            +"Hrm, excuse me! That was just so good that i got a bit excited! Lets move on to the final task!"
+            + Gestures.GazeAway
         }
         users.current.userData.tickets++
         users.current.userData.tickets++
+        users.current.userData.didBarking = true
         goto(TaskThree)
     }
 
@@ -104,7 +124,7 @@ val PersuasionPhaseOneTaskTwo: State = state(Parent) {
     }
 
     onResponse<Yes> {
-        furhat.say("Okay, I'll take that as a YES, I wan't to do the task! Leets go!")
+        furhat.say("Wonderful, amazing! You wan't to do the task! Lets go!")
         goto(TryingTaskTwo)
     }
 
