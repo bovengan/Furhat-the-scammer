@@ -1,6 +1,6 @@
 package furhatos.app.furhatconvincer.flow.main
 
-import furhatos.app.furhatconvincer.flow.Parent
+import furhatos.app.furhatconvincer.flow.parents.Parent
 import furhatos.app.furhatconvincer.nlu.okIntent
 import furhatos.app.furhatconvincer.userData
 import furhatos.flow.kotlin.*
@@ -56,11 +56,12 @@ val TryingTaskOne: State = state(Parent) {
     onButton(taskOneCompleted) {
         furhat.say("Good job! You looked like a real athlete doing that. Let's move onto the second task.")
         users.current.userData.tickets++
+        users.current.userData.ranAroundTable = true
         goto(TaskTwo)
     }
 
     onButton(taskOneNotCompleted) {
-        furhat.say("Well, what a shame! But I understand that it can be embarrasing, lets move on to the final task instead!")
+        furhat.say("Well, what a shame! But I understand that it can be embarrassing, lets move on to the final task instead!")
         furhat.say("I know you will love this one!")
         goto(TaskTwo)
     }
