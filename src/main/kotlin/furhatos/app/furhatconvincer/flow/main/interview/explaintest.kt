@@ -1,6 +1,6 @@
 package furhatos.app.furhatconvincer.flow.main.interview
 
-import furhatos.app.furhatconvincer.flow.Parent
+import furhatos.app.furhatconvincer.flow.parents.Parent
 import furhatos.app.furhatconvincer.flow.main.TaskOne
 import furhatos.app.furhatconvincer.nlu.RepeatInstructions
 import furhatos.flow.kotlin.*
@@ -26,7 +26,7 @@ val ExplainTest: State = state(Parent) {
 
     onReentry {
         if (answerNo) {
-            furhat.say("Come again, do you want me to repeat it shorter, slower or just repeat it? Or maybe in japanese?")
+            furhat.ask("Come again, do you want me to repeat it shorter, slower or just repeat it? Or maybe in japanese?")
         } else {
             furhat.say("I'm sorry, I did not understand. I will repeat the instructions.")
             furhat.say(sentence)
@@ -41,7 +41,7 @@ val ExplainTest: State = state(Parent) {
     }
     onResponse<No> {
         answerNo = true
-        furhat.ask("Hmm okay, that might have went a bit fast, do you want me to repeat it shorter, slower or just repeat it?")
+        furhat.ask("Hmm okay, that might have went a bit fast, do you want me to repeat it shorter, slower or just repeat it? Or I could even try Japanese!")
     }
 
     onResponse<RepeatInstructions> {
