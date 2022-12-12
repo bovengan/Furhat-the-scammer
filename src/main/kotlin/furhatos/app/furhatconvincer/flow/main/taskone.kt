@@ -1,9 +1,12 @@
 package furhatos.app.furhatconvincer.flow.main
 
+import furhat.libraries.standard.GesturesLib
 import furhatos.app.furhatconvincer.flow.parents.Parent
+import furhatos.app.furhatconvincer.flow.parents.Parent2
 import furhatos.app.furhatconvincer.nlu.okIntent
 import furhatos.app.furhatconvincer.userData
 import furhatos.flow.kotlin.*
+import furhatos.gestures.Gestures
 import furhatos.nlu.common.No
 import furhatos.nlu.common.Yes
 
@@ -35,7 +38,7 @@ val TaskOne: State = state(Parent) {
     }
 
     onResponse<No> {
-        furhat.say("Come on, it is going to be fun, it is not that embarrassing, I am here to keep you company")
+        furhat.say("Come on, it is good for your health to move! And it is fun!")
         goto(PersuasionPhaseOneTaskOne)
     }
 
@@ -48,7 +51,7 @@ val TaskOne: State = state(Parent) {
     }
 }
 
-val TryingTaskOne: State = state(Parent) {
+val TryingTaskOne: State = state(Parent2) {
     onEntry {
         furhat.say("Awesome, I knew you would do it! Come on, just start whenever!")
     }
@@ -61,7 +64,10 @@ val TryingTaskOne: State = state(Parent) {
     }
 
     onButton(taskOneNotCompleted) {
-        furhat.say("Well, what a shame! But I understand that it can be embarrassing, lets move on to the final task instead!")
+        furhat.say{
+            +"Good try, but not good enough! Better luck with the next task"
+            +Gestures.Wink
+        }
         furhat.say("I know you will love this one!")
         goto(TaskTwo)
     }
@@ -69,7 +75,7 @@ val TryingTaskOne: State = state(Parent) {
 
 val PersuasionPhaseOneTaskOne: State = state(Parent) {
     onEntry {
-        furhat.ask("I promise, it will be worth it! Do you want to try it?")
+        furhat.ask("I know you can do it! And it would make me happy. Do you want to try it?")
     }
 
     onReentry {
@@ -113,8 +119,12 @@ val PersuasionPhaseTwoTaskOne: State = state(Parent) {
     }
 
     onResponse<No> {
-        furhat.say("Well, what a shame! But I understand that it can be embarrasing, lets move on to the final task instead!")
-        furhat.say("I know you will love this one!")
+        furhat.say{
+            + "Well, what a shame! But at your stunning age of ${users.current.userData.age} "
+            + GesturesLib.PerformDoubleNod
+            + delay(500)
+            +"I guess it cannot be easy to run around a small little table. Ah well, lets move on!"}
+        furhat.say("I know you will love this next one though!")
         goto(TaskTwo)
     }
 
