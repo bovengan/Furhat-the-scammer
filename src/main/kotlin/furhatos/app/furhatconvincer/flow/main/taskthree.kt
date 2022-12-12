@@ -2,6 +2,7 @@ package furhatos.app.furhatconvincer.flow.main
 
 import furhat.libraries.standard.GesturesLib
 import furhatos.app.furhatconvincer.flow.parents.Parent
+import furhatos.app.furhatconvincer.flow.parents.Parent2
 import furhatos.app.furhatconvincer.nlu.okIntent
 import furhatos.app.furhatconvincer.userData
 import furhatos.flow.kotlin.*
@@ -20,9 +21,9 @@ val taskThreeNotCompleted = Button("Task NOT completed")
 val TaskThree: State = state(Parent) {
     onEntry {
         furhat.say{
+                    + Gestures.Smile(duration = 1.5)
                     + "Okay, so wouldn't it be fun if you now go out in the corridor and pretend that you are a Trex?"
                     + "And you should both look like one and sound like a T-rex! That would be awesome!"
-                    + GesturesLib.PerformBigSmile1
                     }
         furhat.ask("What do you think? Can you do it?")
     }
@@ -48,8 +49,8 @@ val TaskThree: State = state(Parent) {
 
     onResponse<No> {
         furhat.say {
-            +"Come on, it is going to be fun, it is not that embarrassing, I am here to keep you company"
-            +Gestures.Roll
+            +"Really? I think T-rexes are soo cool! I would love it of you did it!"
+            +Gestures.Wink
         }
         goto(PersuasionPhaseOneTaskThree)
     }
@@ -63,27 +64,29 @@ val TaskThree: State = state(Parent) {
     }
 }
 
-val TryingTaskThree: State = state(Parent) {
+val TryingTaskThree: State = state(Parent2) {
     onEntry {
         furhat.say {
+            +GesturesLib.PerformBigSmile1
             +"Marvelous, I knew you would do it! Don't scare me to much now though!"
-            +GesturesLib.PerformFear1
-            + "But just go out and start whenever you are ready! I'll watch through the window!"
+            + "But just go out and start whenever you are ready! I'll watch from here!"
             + behavior {  furhat.attend(Location.LEFT)}
         }
     }
 
     onButton(taskThreeCompleted) {
-        furhat.voice = Voice(gender = Gender.MALE, language = Language.RUSSIAN, pitch = "high", rate = 0.6)
+        furhat.attend(users.current)
+        furhat.voice = Voice(gender = Gender.MALE, language = Language.DANISH, pitch = "high", rate = 1.0)
         furhat.say {
-            +"HELP, do not come closer! I am convinced you are a T-rex now!"
             +GesturesLib.PerformShock1
+            +"HELP, do not come closer! I am convinced you are a T-rex now!"
             + delay(1000)
         }
         furhat.voice = PollyVoice.Matthew()
         furhat.say{
+            + Gestures.GazeAway(duration = 1.7)
             +"Oh sorry, i lost it again! But well done i guess! Lets move on to the final task!"
-            + Gestures.GazeAway
+
         }
         users.current.userData.tickets++
         users.current.userData.didTrex = true
@@ -94,11 +97,11 @@ val TryingTaskThree: State = state(Parent) {
 
     onButton(taskThreeNotCompleted) {
         furhat.say {
-            +"Well, what a shame! But I understand that it can be embarrasing, lets move on to the final task instead!"
             +behavior { furhat.gesture(Gestures.Nod) }
             +GesturesLib.PerformThoughtful2
+            +"Well, well, well, well. Your loss i guess. Lets move on to the final task then"
+            + "If you are that boring!"
             +delay(500)
-            +"I know you will love this one!"
             +GesturesLib.PerformSmile1
         }
         goto(FinalTask)
@@ -107,7 +110,32 @@ val TryingTaskThree: State = state(Parent) {
 
 val PersuasionPhaseOneTaskThree: State = state(Parent) {
     onEntry {
-        furhat.ask("I promise, it will be worth it! Do you want to try it?")
+        furhat.say("This can be epic! Think about it!")
+        if(users.current.userData.ranAroundTable && users.current.userData.didBarking){
+            furhat.say{
+                +"You already barked "
+                + behavior { furhat.attend(Location.DOWN_LEFT) }
+                + behavior { furhat.attend(Location.DOWN_RIGHT) }
+                +"and ran around this table"
+                + behavior { furhat.attend(users.current)}
+                + "This is not any worse than that, right?"
+            }
+        }else if(users.current.userData.didBarking){
+            furhat.say{
+                +"You already barked like a mad dog!"
+                +Gestures.Wink
+                + "The damage is already done, this is not worse, right?"
+            }
+        }else if(users.current.userData.ranAroundTable){
+            furhat.say{
+                +"You have already been up and running!"
+                + Gestures.BrowRaise(duration = 2.0)
+                +"Think of this as an extension of that!"
+            }
+        }
+
+        furhat.ask("So do you want to do the T-rex?")
+
     }
 
     onReentry {
@@ -115,16 +143,16 @@ val PersuasionPhaseOneTaskThree: State = state(Parent) {
     }
 
     onResponse<Yes> {
-        goto(TryingTaskTwo)
+        goto(TryingTaskThree)
     }
 
     onResponse(okIntent) {
-        goto(TryingTaskTwo)
+        goto(TryingTaskThree)
     }
 
     onResponse<No> {
-        furhat.say("Well, what a shame! But I understand that it can be embarrasing, lets move on to the final task instead!")
-        furhat.say("I know you will love this one!")
+        furhat.say("Okay, okay! You are a scared i guess!")
+        furhat.say("Lets move on to the final task instead!")
         goto(FinalTask)
     }
 
