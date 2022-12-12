@@ -4,9 +4,11 @@ import furhatos.app.furhatconvincer.flow.parents.Parent
 import furhatos.app.furhatconvincer.flow.main.TaskOne
 import furhatos.app.furhatconvincer.nlu.RepeatInstructions
 import furhatos.flow.kotlin.*
+import furhatos.flow.kotlin.furhat.characters.Characters
 import furhatos.flow.kotlin.voice.PollyVoice
 import furhatos.flow.kotlin.voice.Voice
 import furhatos.nlu.common.No
+import furhatos.nlu.common.RequestRepeat
 import furhatos.nlu.common.Yes
 import furhatos.util.Gender
 import furhatos.util.Language
@@ -44,6 +46,11 @@ val ExplainTest: State = state(Parent) {
         furhat.ask("Hmm okay, that might have went a bit fast, do you want me to repeat it shorter, slower or just repeat it? Or I could even try Japanese!")
     }
 
+    onResponse<RequestRepeat> {
+        furhat.say(sentence)
+        furhat.ask("Can we continue?")
+    }
+
     onResponse<RepeatInstructions> {
         if (it.intent.answer.toString() == "shorter") {
             furhat.say("You will get three tasks to complete, for each completed task you get better odds at winning the gift. Here is the first task.")
@@ -57,13 +64,15 @@ val ExplainTest: State = state(Parent) {
             furhat.ask(sentence)
         } else if (it.intent.answer.toString() == "Japanese") {
             furhat.voice = Voice(gender = Gender.FEMALE, language = Language.JAPANESE, pitch = "high", rate = 1.5)
-            // furhat.setCharacter(Characters.Anime_Legacy.AnimePink)
+            furhat.setCharacter(Characters.Anime_Legacy.AnimePink)
+            delay(1000)
             furhat.say(sentence)
             furhat.voice = PollyVoice.Matthew()
-            // furhat.setCharacter(Characters.Adult.default)
-            delay(200)
+            delay(1000)
+            furhat.setCharacter(Characters.Adult.Alex)
+            delay(500)
             furhat.say("Just kidding. That would have been cool though")
-            furhat.ask("So, do you understand or should I repeat the instructions?") // Måste fixa
+            furhat.ask("But would you like to continue?")
         } else {
             reentry()
         }
