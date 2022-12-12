@@ -8,7 +8,8 @@ class UserData(
     var age: Number? = null,
     var tickets: Int = 0,
     var didBarking: Boolean = false,
-    var ranAroundTable: Boolean = false
+    var ranAroundTable: Boolean = false,
+    var didTrex: Boolean = false
 )
 
 val User.userData : UserData
