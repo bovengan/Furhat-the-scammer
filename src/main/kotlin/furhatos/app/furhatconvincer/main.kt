@@ -29,11 +29,6 @@ val Init : State = state() {
         users.setSimpleEngagementPolicy(distanceToEngage, maxNumberOfUsers)
         furhat.voice = Voice("Matthew")
         /** start the interaction */
-        // Vet inte om denna trigger ska vara här eller någon annanstans men gör iaf att furhat tar leenden i hänsyn
-        // Och ler tillbaka om användaren ler.
-        onUserGesture(UserGestures.Smile) {
-            furhat.gesture(Gestures.BigSmile)
-        }
         goto(Idle)
     }
 }
