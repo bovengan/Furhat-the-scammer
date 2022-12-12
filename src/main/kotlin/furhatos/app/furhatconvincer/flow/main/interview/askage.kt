@@ -86,6 +86,7 @@ val AskAge: State = state(Parent) {
     }
 
     onResponse<No> {
+        furhat.say("Well, i cannot guess that you are 24...")
         reentry()
     }
 
