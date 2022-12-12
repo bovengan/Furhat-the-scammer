@@ -15,4 +15,8 @@ val Parent: State = state {
     onUserEnter(instant = true) {
         furhat.glance(it)
     }
+    
+    onUserGesture(instant = true, gesture = UserGestures.Smile) {
+        furhat.gesture(Gestures.BigSmile)
+    }
 }
