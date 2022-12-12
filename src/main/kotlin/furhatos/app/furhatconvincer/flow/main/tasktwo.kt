@@ -2,6 +2,7 @@ package furhatos.app.furhatconvincer.flow.main
 
 import furhat.libraries.standard.GesturesLib
 import furhatos.app.furhatconvincer.flow.parents.Parent
+import furhatos.app.furhatconvincer.flow.parents.Parent2
 import furhatos.app.furhatconvincer.nlu.okIntent
 import furhatos.app.furhatconvincer.userData
 import furhatos.flow.kotlin.*
@@ -19,6 +20,7 @@ val taskTwoNotCompleted = Button("Task NOT completed")
 
 val TaskTwo: State = state(Parent) {
     onEntry {
+        delay(500)
         furhat.say("Okay, now I want you to bark as a dog as long and realistic as possible, the longer the bark the better the odds you get, my makers will inform you if you are not barking loud enough")
         furhat.ask("What do you think? Can you do it?")
     }
@@ -43,8 +45,8 @@ val TaskTwo: State = state(Parent) {
 
     onResponse<No> {
         furhat.say {
-            +"Come on, it is going to be fun, it is not that embarrassing, I am here to keep you company"
-            +Gestures.Roll
+            +"Come on, it is going to be fun, it is not that embarrassing, I am here to keep you company!"
+            +Gestures.Wink
         }
         goto(PersuasionPhaseOneTaskTwo)
     }
@@ -58,10 +60,10 @@ val TaskTwo: State = state(Parent) {
     }
 }
 
-val TryingTaskTwo: State = state(Parent) {
+val TryingTaskTwo: State = state(Parent2) {
     onEntry {
         furhat.say {
-            +"Awesome, I knew you would do it! Come on, just start whenever!"
+            +"Great! I'm listening! Ready to hear som barking when you are ready!"
             +GesturesLib.PerformBigSmile1
         }
     }
@@ -69,14 +71,14 @@ val TryingTaskTwo: State = state(Parent) {
     onButton(taskTwoCompleted) {
         furhat.voice = Voice(gender = Gender.FEMALE, language = Language.CATALAN, pitch = "high", rate = 1.1)
         furhat.say {
-            +"Hahaha great, you sounded like a real dog! That was awesome! Hahahahahahaha!"
             +GesturesLib.PerformBigSmile1
+            +"Hahaha great, you sounded like a real dog! That was awesome! Hahahahahahaha!"
             + delay(1000)
         }
         furhat.voice = PollyVoice.Matthew()
         furhat.say{
-            +"Hrm, excuse me! That was just so good that i got a bit excited! Lets move on to the next task!"
             + Gestures.GazeAway
+            +"Hrm, excuse me! That was just so good that i got a bit excited! Lets move on to the next task!"
         }
         users.current.userData.tickets++
         users.current.userData.didBarking = true
@@ -86,14 +88,14 @@ val TryingTaskTwo: State = state(Parent) {
     onButton(taskTwoWellCompleted) {
         furhat.voice = Voice(gender = Gender.FEMALE, language = Language.CATALAN, pitch = "high", rate = 1.1)
         furhat.say {
-            +"Hahaha great, you sounded like a real dog! That was awesome! Hahahahahahaha!"
             +GesturesLib.PerformBigSmile1
+            +"Hahaha great, you sounded like a real dog! That was awesome! Hahahahahahaha!"
             + delay(1000)
         }
         furhat.voice = PollyVoice.Matthew()
         furhat.say{
-            +"Hrm, excuse me! That was just so good that i got a bit excited! Lets move on to the next task!"
             + Gestures.GazeAway
+            +"Hrm, excuse me! Hahahaha! That was just so good that i got a bit excited! Lets move on to the next task!"
         }
         users.current.userData.tickets++
         users.current.userData.tickets++
@@ -103,11 +105,11 @@ val TryingTaskTwo: State = state(Parent) {
 
     onButton(taskTwoNotCompleted) {
         furhat.say {
-            +"Well, what a shame! But I understand that it can be embarrasing, lets move on to the next task instead!"
+            +"Well, what a shame! But I understand that it can be embarrassing, lets move on to the next task instead!"
             +behavior { furhat.gesture(Gestures.Nod) }
             +GesturesLib.PerformThoughtful2
             +delay(500)
-            +"I know you will love this one!"
+            +"This next one was made just for you!"
             +GesturesLib.PerformSmile1
         }
         goto(TaskThree)
