@@ -75,7 +75,7 @@ val TryingTaskTwo: State = state(Parent) {
         }
         furhat.voice = PollyVoice.Matthew()
         furhat.say{
-            +"Hrm, excuse me! That was just so good that i got a bit excited! Lets move on to the final task!"
+            +"Hrm, excuse me! That was just so good that i got a bit excited! Lets move on to the next task!"
             + Gestures.GazeAway
         }
         users.current.userData.tickets++
@@ -92,7 +92,7 @@ val TryingTaskTwo: State = state(Parent) {
         }
         furhat.voice = PollyVoice.Matthew()
         furhat.say{
-            +"Hrm, excuse me! That was just so good that i got a bit excited! Lets move on to the final task!"
+            +"Hrm, excuse me! That was just so good that i got a bit excited! Lets move on to the next task!"
             + Gestures.GazeAway
         }
         users.current.userData.tickets++
@@ -103,7 +103,7 @@ val TryingTaskTwo: State = state(Parent) {
 
     onButton(taskTwoNotCompleted) {
         furhat.say {
-            +"Well, what a shame! But I understand that it can be embarrasing, lets move on to the final task instead!"
+            +"Well, what a shame! But I understand that it can be embarrasing, lets move on to the next task instead!"
             +behavior { furhat.gesture(Gestures.Nod) }
             +GesturesLib.PerformThoughtful2
             +delay(500)
@@ -124,7 +124,6 @@ val PersuasionPhaseOneTaskTwo: State = state(Parent) {
     }
 
     onResponse<Yes> {
-        furhat.say("Wonderful, amazing! You wan't to do the task! Lets go!")
         goto(TryingTaskTwo)
     }
 
@@ -133,7 +132,7 @@ val PersuasionPhaseOneTaskTwo: State = state(Parent) {
     }
 
     onResponse<No> {
-        furhat.say("Well, what a shame! But I understand that it can be embarrasing, lets move on to the final task instead!")
+        furhat.say("Well, what a shame! But I understand that it can be embarrassing, lets move on to the next task instead!")
         furhat.say("I know you will love this one!")
         goto(TaskThree)
     }
