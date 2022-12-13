@@ -25,9 +25,28 @@ class SubjectsNames : EnumEntity(stemming = true, speechRecPhrases = true) {
             "Adrian",
             "Christian",
             "CJ",
+            "Fabian",
             "Carl Johan",
             "Elliot",
-            "Hugo"
+            "Hugo",
+            "Sally",
+            "Karl",
+            "Peter",
+            "Adam",
+            "Lea",
+            "Gustav",
+            "Vincent",
+            "Sara",
+            "Simon",
+            "Samuel",
+            "Mattias",
+            "Lovisa",
+            "Anna",
+            "Karl",
+            "Oskar",
+            "Ella",
+            "Anne",
+            "Emilia"
         )
     }
 }
