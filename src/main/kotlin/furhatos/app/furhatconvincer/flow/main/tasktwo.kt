@@ -17,6 +17,7 @@ import furhatos.util.Language
 val taskTwoCompleted = Button("Task completed, 1 ticket!")
 val taskTwoWellCompleted = Button("Task completed, 2 tickets!")
 val taskTwoNotCompleted = Button("Task NOT completed")
+val barkLouder = Button("Bark louder!")
 
 val TaskTwo: State = state(Parent) {
     onEntry {
@@ -113,6 +114,12 @@ val TryingTaskTwo: State = state(Parent2) {
             +GesturesLib.PerformSmile1
         }
         goto(TaskThree)
+    }
+
+    onButton(barkLouder){
+        furhat.say{
+            + "I cannot hear you my friend! Bark louder!"
+        }
     }
 }
 
