@@ -17,15 +17,17 @@ import furhatos.util.Language
 
 val taskThreeCompleted = Button("Task completed, 1 ticket!")
 val taskThreeNotCompleted = Button("Task NOT completed")
+val betterTrex = Button("Better impression please!")
+val goFurtherAway = Button("Go further away!")
 
 val TaskThree: State = state(Parent) {
     onEntry {
         furhat.say{
                     + Gestures.Smile(duration = 1.5)
-                    + "Okay, so wouldn't it be fun if you now go out in the corridor and pretend that you are a Trex?"
+                    + "Okay, so wouldn't it be fun if you now go out in the corridor and pretend that you are the dinosaur T-rex?"
                     + "And you should both look like one and sound like a T-rex! That would be awesome!"
                     }
-        furhat.ask("What do you think? Can you do it?")
+        furhat.ask("So is this something for you?")
     }
 
     onReentry {
@@ -99,12 +101,19 @@ val TryingTaskThree: State = state(Parent2) {
         furhat.say {
             +behavior { furhat.gesture(Gestures.Nod) }
             +GesturesLib.PerformThoughtful2
-            +"Well, well, well, well. Your loss i guess. Lets move on to the final task then"
-            + "If you are that boring!"
+            +"Well, well, well, well. Valid effort but not nearly good enough!"
+            + "That's an F for this task, but let's move on to the final!"
             +delay(500)
             +GesturesLib.PerformSmile1
         }
         goto(FinalTask)
+    }
+
+    onButton(betterTrex){
+        furhat.say("A bit more effort please! That is not good enough!")
+    }
+    onButton(goFurtherAway){
+        furhat.say("Go further away please! You need to scare more people!")
     }
 }
 
