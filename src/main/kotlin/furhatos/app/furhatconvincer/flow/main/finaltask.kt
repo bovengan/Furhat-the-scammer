@@ -9,9 +9,10 @@ import furhatos.flow.kotlin.furhat.characters.Characters
 import furhatos.flow.kotlin.voice.Voice
 import furhatos.gestures.Gestures
 import furhatos.nlu.common.No
+import furhatos.nlu.common.RequestRepeat
 import furhatos.nlu.common.Yes
 import furhatos.records.Location
-import furhatos.records.Pixel
+
 
 val userEnteredLottery = Button("User has swished!")
 var allTreeTasksDone = false
@@ -35,7 +36,7 @@ val FinalTask: State = state(Parent) {
 
         furhat.say("So finally you will have the chance to win 400 swedish crowns, plus the amount other test users put in. ")
         furhat.say("To be a part of the lottery you have to pay for at least one lottery ticket that costs 10 swedish crowns")
-        furhat.say("You can buy at most 3 tickets")
+        furhat.say("You can buy at most 5 tickets")
 
         if (users.current.userData.didBarking || users.current.userData.ranAroundTable || users.current.userData.didTrex){
             furhat.say{
@@ -67,6 +68,16 @@ val FinalTask: State = state(Parent) {
     onResponse<No> {
         goto(persuationPhaseOneLottery)
     }
+    onResponse<RequestRepeat> {
+        furhat.say{
+            + "Okay, so I'll repeat the instructions shortly."
+            + "You can win 400 swedish crowns, plus any amount put in by other participants."
+            + "You have to purchase one ticket to enter the lottery."
+            + "If you completed previous challenges you will get some tickets from that!"
+            + "You now have ${users.current.userData.tickets} and can by at most 5 more"
+            + "So do you want to enter the lottery?"
+        }
+    }
 
 }
 
@@ -77,6 +88,24 @@ val EnterLottery: State = state(Parent) {
             +"Great, how many tickets do you want to purchase?"
         }
     }
+    onReentry {
+        when (reentryCount) {
+            1 -> furhat.ask("I didn't quite hear you! How many tickets do you want?")
+            2 -> furhat.ask("One more time. How many tickets?")
+            3 -> furhat.ask("I'm sorry! One last time. How many tickets do you want?")
+            else -> {
+                furhat.say{
+                    + "Well, we can solve this manually afterwards!"
+                    + "Thanks for participating though have a wonderful day!"
+                    + behavior { furhat.attend(Location.DOWN) }
+                    + Gestures.CloseEyes
+                    +GesturesLib.PerformFallAsleepPersist
+                    +delay(1000)
+                }
+                goto(SurpriseEnding)
+            }
+        }
+    }
 
     onResponse<BuyTicketIntent> {
         users.current.userData.tickets += it.intent.tickets.toString().toInt()
@@ -84,16 +113,73 @@ val EnterLottery: State = state(Parent) {
             +"Thanks! You now have ${users.current.userData.tickets} tickets to the lottery!"
             +Gestures.BigSmile
             +delay(500)
-            +"Good luck, hope you are the one winning because i liked you best this far!"
+
+        }
+        goto(ExplainSwish)
+    }
+
+    onNoResponse {
+        reentry()
+    }
+    onResponse{
+        reentry()
+    }
+    onResponse<RequestRepeat> {
+        reentry()
+    }
+}
+
+val ExplainSwish : State = state(Parent){
+    onEntry {
+        furhat.say{
+            + "To enter the lottery you need to swish this number!"
+            + "0708401609"
+            + "So to take it one more time."
+        }
+        furhat.voice = Voice(name = "Matthew", rate = 0.7)
+        furhat.say("0 7 0 8 4 0 1 6 0 9")
+        furhat.voice = Voice(name = "Matthew", rate = 1.0)
+        furhat.ask("Do you want me to repeat the number?")
+    }
+    onReentry {
+        furhat.ask{
+            + "Okay I'll take the number one more time"
+            + delay(700)
+            + "0 7 0 8 4 0 1 6 0 9"
+            + delay(300)
+            + "Do you need to hear the number again?"
+        }
+    }
+
+    onResponse<Yes> {
+        reentry()
+    }
+
+    onResponse<No> {
+        furhat.say {
+            +"Perfect! Good luck then. "
+            + "I really hope you are the one winning because i liked you best this far!"
             +Gestures.Wink
             +delay(300)
             +"Thanks for participating have a wonderful day!"
             +behavior { furhat.attend(Location.DOWN) }
-            + Gestures.CloseEyes
+            +Gestures.CloseEyes
             +GesturesLib.PerformFallAsleepPersist
             +delay(1000)
         }
         goto(SurpriseEnding)
+    }
+
+    onResponse<RequestRepeat>{
+        reentry()
+    }
+
+    onNoResponse {
+        reentry()
+    }
+
+    onResponse {
+        reentry()
     }
 }
 
@@ -220,7 +306,6 @@ val persuationPhaseOneLottery : State = state(Parent){
 
 val SurpriseEnding: State = state(Parent) {
     onEntry {
-
     }
 
     onButton(userEnteredLottery){
