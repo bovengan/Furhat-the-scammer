@@ -8,6 +8,7 @@ import furhatos.flow.kotlin.*
 import furhatos.gestures.Gestures
 import furhatos.nlu.common.No
 import furhatos.nlu.common.Yes
+import java.lang.Math.abs
 
 val AskAge: State = state(Parent) {
     var ageConfirmed = false
@@ -59,9 +60,10 @@ val AskAge: State = state(Parent) {
         }
         users.current.userData.age = it.intent.age
         val furhatAge = 47 // Gabriel's age
-        val difference = furhatAge - userAge
+        var difference = furhatAge - userAge
         ageConfirmed = true
         if (difference < 0) {
+            difference = kotlin.math.abs(difference)
             furhat.say(
                 "This means that you are $difference years older than me because I am just as old" +
                         " as my inventor, I'm 47 years old"
@@ -86,8 +88,10 @@ val AskAge: State = state(Parent) {
     }
 
     onResponse<No> {
+        if (ageConfirmed) {
+            reentry()
+        }
         furhat.say("Well, i cannot guess that you are 24...")
-        reentry()
     }
 
     onResponseFailed {
