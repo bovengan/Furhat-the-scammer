@@ -23,7 +23,7 @@ val TaskTwo: State = state(Parent) {
     onEntry {
         delay(500)
         furhat.say("Okay, now I want you to bark as a dog as long and realistic as possible, the longer the bark the better the odds you get, my makers will inform you if you are not barking loud enough")
-        furhat.ask("What do you think? Can you do it?")
+        furhat.ask("So do you want to do this?")
     }
 
     onReentry {
@@ -106,8 +106,9 @@ val TryingTaskTwo: State = state(Parent2) {
 
     onButton(taskTwoNotCompleted) {
         furhat.say {
-            +"Well, what a shame! But I understand that it can be embarrassing, lets move on to the next task instead!"
-            +behavior { furhat.gesture(Gestures.Nod) }
+            +behavior { furhat.gesture(Gestures.Shake) }
+            +" Well that was not good enough, but cred that you tried."
+            +"We'll go to the next task instead!"
             +GesturesLib.PerformThoughtful2
             +delay(500)
             +"This next one was made just for you!"
