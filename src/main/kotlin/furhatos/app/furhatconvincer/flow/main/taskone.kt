@@ -79,7 +79,7 @@ val PersuasionPhaseOneTaskOne: State = state(Parent) {
     }
 
     onReentry {
-        furhat.ask("So are you sure? You want to continue to the next task?")
+        furhat.ask("I didn't hear you. So do you want to try it?")
     }
 
     onResponse<Yes> {
