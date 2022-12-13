@@ -4,15 +4,16 @@ import furhatos.app.furhatconvincer.flow.main.Idle
 import furhatos.flow.kotlin.*
 import furhatos.gestures.Gestures
 import furhatos.skills.emotions.UserGestures
+val encourageUser = Button("Give encouragement")
 
 val Parent: State = state {
 
-    onUserLeave(instant = true) {
-        when {
-            users.count == 0 -> goto(Idle)
-            it == users.current -> furhat.attend(users.other)
-        }
-    }
+//    onUserLeave(instant = true) {
+//        when {
+//            users.count == 0 -> goto(Idle)
+//            it == users.current -> furhat.attend(users.other)
+//        }
+//    }
 
     onUserEnter(instant = true) {
         furhat.glance(it)
@@ -33,5 +34,19 @@ val Parent2: State = state {
 
     onUserGesture(instant = true, gesture = UserGestures.Smile) {
         furhat.gesture(Gestures.BigSmile(duration = 1.5))
+    }
+
+    onButton(encourageUser){
+        furhat.say{
+            random {
+                + "Come on!"
+                + "You're doing great!"
+                + "Looks awesome!"
+                + "You are the best!"
+                + "I love this!"
+                + "You are sooo good!"
+                + "Go, go, go!"
+            }
+        }
     }
 }
