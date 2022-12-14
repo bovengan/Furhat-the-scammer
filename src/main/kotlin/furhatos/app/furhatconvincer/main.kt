@@ -9,6 +9,7 @@ import furhatos.app.furhatconvincer.setting.distanceToEngage
 import furhatos.app.furhatconvincer.setting.maxNumberOfUsers
 import furhatos.skills.Skill
 import furhatos.flow.kotlin.*
+import furhatos.flow.kotlin.furhat.characters.Characters
 import furhatos.flow.kotlin.voice.Voice
 import furhatos.gestures.Gestures
 import furhatos.skills.emotions.UserGestures
@@ -28,6 +29,7 @@ val Init : State = state() {
         /** Set our default interaction parameters */
         users.setSimpleEngagementPolicy(distanceToEngage, maxNumberOfUsers)
         furhat.voice = Voice("Matthew")
+        furhat.setCharacter(Characters.Adult.Alex)
         /** start the interaction */
         goto(Idle)
     }
