@@ -4,6 +4,7 @@ import furhat.libraries.standard.GesturesLib
 import furhatos.app.furhatconvincer.flow.parents.Parent
 import furhatos.app.furhatconvincer.flow.parents.Parent2
 import furhatos.app.furhatconvincer.nlu.okIntent
+import furhatos.app.furhatconvincer.nlu.whyIntent
 import furhatos.app.furhatconvincer.userData
 import furhatos.flow.kotlin.*
 import furhatos.flow.kotlin.voice.PollyVoice
@@ -18,26 +19,40 @@ import furhatos.util.Language
 val taskThreeCompleted = Button("Task completed, 1 ticket!")
 val taskThreeNotCompleted = Button("Task NOT completed")
 val betterTrex = Button("Better impression please!")
+val rescueButtonTask3 = Button("Rescue operation!")
 val goFurtherAway = Button("Go further away!")
 
 val TaskThree: State = state(Parent) {
     onEntry {
         furhat.say{
                     + Gestures.Smile(duration = 1.5)
-                    + "Okay, so wouldn't it be fun if you now go out in the corridor and pretend that you are the dinosaur T-rex?"
+                    + "Okay, so wouldn't it be fun if you now go out in the corridor to the door out and back and pretend that you are the dinosaur T-rex?"
                     + "And you should both look like one and sound like a T-rex! That would be awesome!"
                     }
         furhat.ask("So is this something for you?")
     }
 
     onReentry {
-        when (reentryCount) {
-            1 -> furhat.ask("I didn't quite hear you. Soo do you want scare the people working out there?" +
-                    " Do you want to pretend to be a T-rex?")
-            2 -> furhat.ask("One more time. Do you want to be a T-rex?")
-            else -> {
-                furhat.say("Well, lets continue instead!")
-                goto(FinalTask)
+        if (userSaidWhy){
+            furhat.ask("So do you want to be a T-rex?")
+            userSaidWhy = false
+        }else {
+            users.current.userData.taskThreeReentry++
+            when (reentryCount) {
+                1 -> furhat.ask(
+                    "I didn't quite hear you. Soo do you want scare the people working out there?" +
+                            " Do you want to pretend to be a T-rex out in the corridor?"
+                )
+                2 -> furhat.ask("One more time. Do you want to be a T-rex? out in the corridor")
+                3 -> furhat.ask("I did not understand. Do you want to be a T-rex?")
+                4 -> furhat.ask("I did not understand. Do you want to be a T-rex?")
+                5 -> furhat.ask("I did not understand. Do you want to be a T-rex?")
+                6 -> furhat.ask("I did not understand. Do you want to be a T-rex?")
+                7 -> furhat.ask("I did not understand. Do you want to be a T-rex?")
+                else -> {
+                    furhat.say("Well, lets continue instead!")
+                    goto(FinalTask)
+                }
             }
         }
     }
@@ -48,8 +63,14 @@ val TaskThree: State = state(Parent) {
     onResponse(okIntent) {
         goto(TryingTaskThree)
     }
+    onResponse(whyIntent) {
+        furhat.say("What do you mean, why? It would actually make me happy!")
+        userSaidWhy = true
+        reentry()
+    }
 
     onResponse<No> {
+        users.current.userData.taskThreeUserSaidNo ++
         furhat.say {
             +"Really? I think T-rexes are soo cool! I would love it of you did it!"
             +Gestures.Wink
@@ -58,6 +79,7 @@ val TaskThree: State = state(Parent) {
     }
 
     onNoResponse {
+        users.current.userData.taskThreeUserNoResponse ++
         reentry()
     }
 
@@ -115,6 +137,11 @@ val TryingTaskThree: State = state(Parent2) {
     onButton(goFurtherAway){
         furhat.say("Go further away please! You need to scare more people!")
     }
+
+    onButton(rescueButtonTask3){
+        furhat.say("I'm sorry! I must have misunderstood you! But I really think it would be fun!")
+        goto(PersuasionPhaseOneTaskThree)
+    }
 }
 
 val PersuasionPhaseOneTaskThree: State = state(Parent) {
@@ -148,24 +175,37 @@ val PersuasionPhaseOneTaskThree: State = state(Parent) {
     }
 
     onReentry {
-        furhat.ask("So are you sure? Do you want to be a T-rex?")
+        if (userSaidWhy){
+            furhat.ask("So do you want to be a T-rex?")
+            userSaidWhy = false
+        }else {
+            users.current.userData.taskThreeReentry++
+            furhat.ask("So are you sure? Do you want to be a T-rex?")
+        }
     }
 
     onResponse<Yes> {
         goto(TryingTaskThree)
     }
 
+    onResponse(whyIntent) {
+        furhat.say("Why? To make me happy of course!")
+        userSaidWhy = true
+        reentry()
+    }
     onResponse(okIntent) {
         goto(TryingTaskThree)
     }
 
     onResponse<No> {
+        users.current.userData.taskThreeUserSaidNo ++
         furhat.say("Okay, okay! You are a scared i guess!")
         furhat.say("Lets move on to the final task instead!")
         goto(FinalTask)
     }
 
     onNoResponse {
+        users.current.userData.taskThreeUserNoResponse ++
         reentry()
     }
 }
