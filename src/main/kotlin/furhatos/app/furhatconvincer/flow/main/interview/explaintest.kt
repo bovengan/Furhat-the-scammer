@@ -3,6 +3,7 @@ package furhatos.app.furhatconvincer.flow.main.interview
 import furhatos.app.furhatconvincer.flow.parents.Parent
 import furhatos.app.furhatconvincer.flow.main.TaskOne
 import furhatos.app.furhatconvincer.nlu.RepeatInstructions
+import furhatos.app.furhatconvincer.userData
 import furhatos.flow.kotlin.*
 import furhatos.flow.kotlin.furhat.characters.Characters
 import furhatos.flow.kotlin.voice.PollyVoice
@@ -27,6 +28,7 @@ val ExplainTest: State = state(Parent) {
     }
 
     onReentry {
+        users.current.userData.explanationReentry ++
         if (answerNo) {
             furhat.ask("Come again, do you want me to repeat it shorter, slower or just repeat it? Or maybe in japanese?")
         } else {
@@ -42,11 +44,13 @@ val ExplainTest: State = state(Parent) {
         goto(TaskOne)
     }
     onResponse<No> {
+        users.current.userData.explanationUserNotUnderStood ++
         answerNo = true
         furhat.ask("Hmm okay, that might have went a bit fast, do you want me to repeat it shorter, slower or just repeat it? Or I could even try Japanese!")
     }
 
     onResponse<RequestRepeat> {
+        users.current.userData.explanationUserNotUnderStood ++
         furhat.say(sentence)
         furhat.ask("Can we continue?")
     }
@@ -77,10 +81,13 @@ val ExplainTest: State = state(Parent) {
             reentry()
         }
     }
-    onResponseFailed {
+
+    onNoResponse {
+        users.current.userData.explanationUserNoResponse ++
         reentry()
     }
-    onNoResponse {
+
+    onResponse {
         reentry()
     }
 }
