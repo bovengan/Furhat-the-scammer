@@ -4,6 +4,7 @@ import furhat.libraries.standard.GesturesLib
 import furhatos.app.furhatconvincer.flow.parents.Parent
 import furhatos.app.furhatconvincer.flow.parents.Parent2
 import furhatos.app.furhatconvincer.nlu.okIntent
+import furhatos.app.furhatconvincer.nlu.whyIntent
 import furhatos.app.furhatconvincer.userData
 import furhatos.flow.kotlin.*
 import furhatos.flow.kotlin.voice.PollyVoice
@@ -17,7 +18,9 @@ import furhatos.util.Language
 val taskTwoCompleted = Button("Task completed, 1 ticket!")
 val taskTwoWellCompleted = Button("Task completed, 2 tickets!")
 val taskTwoNotCompleted = Button("Task NOT completed")
+val rescueButtonTask2 = Button("Rescue operation!")
 val barkLouder = Button("Bark louder!")
+
 
 val TaskTwo: State = state(Parent) {
     onEntry {
@@ -27,12 +30,23 @@ val TaskTwo: State = state(Parent) {
     }
 
     onReentry {
-        when (reentryCount) {
-            1 -> furhat.ask("I didn't quite hear you. Soo do you want to bark as a dog? It's gonna be awesome.")
-            2 -> furhat.ask("One more time. Do you want to bark as a dog?")
-            else -> {
-                furhat.say("Well, lets continue instead!")
-                goto(TaskThree)
+        if (userSaidWhy){
+            furhat.ask("So do you want to run?")
+            userSaidWhy = false
+        }else {
+            users.current.userData.taskTwoReentry++
+            when (reentryCount) {
+                1 -> furhat.ask("I didn't quite hear you. Soo do you want to bark as a dog? It's gonna be awesome.")
+                2 -> furhat.ask("One more time. Do you want to bark as a dog?")
+                3 -> furhat.ask("I did not understand. Do you want to bark?")
+                4 -> furhat.ask("I did not understand. Do you want to bark?")
+                5 -> furhat.ask("I did not understand. Do you want to bark?")
+                6 -> furhat.ask("I did not understand. Do you want to bark?")
+                7 -> furhat.ask("I did not understand. Do you want to bark?")
+                else -> {
+                    furhat.say("Well, lets continue instead!")
+                    goto(TaskThree)
+                }
             }
         }
     }
@@ -44,7 +58,14 @@ val TaskTwo: State = state(Parent) {
         goto(TryingTaskTwo)
     }
 
+    onResponse(whyIntent) {
+        furhat.say("Why not? It would make me happy!")
+        userSaidWhy = true
+        reentry()
+    }
+
     onResponse<No> {
+        users.current.userData.taskTwoUserSaidNo ++
         furhat.say {
             +"Come on, it is going to be fun, it is not that embarrassing, I am here to keep you company!"
             +Gestures.Wink
@@ -53,6 +74,7 @@ val TaskTwo: State = state(Parent) {
     }
 
     onNoResponse {
+        users.current.userData.taskTwoUserNoResponse ++
         reentry()
     }
 
@@ -122,6 +144,11 @@ val TryingTaskTwo: State = state(Parent2) {
             + "I cannot hear you my friend! Bark louder!"
         }
     }
+
+    onButton(rescueButtonTask2){
+        furhat.say("I'm sorry! I must have misunderstood you! But I really think it would be fun!")
+        goto(PersuasionPhaseOneTaskTwo)
+    }
 }
 
 val PersuasionPhaseOneTaskTwo: State = state(Parent) {
@@ -130,7 +157,13 @@ val PersuasionPhaseOneTaskTwo: State = state(Parent) {
     }
 
     onReentry {
-        furhat.ask("So are you sure? Do you want to bark?")
+        if (userSaidWhy){
+            furhat.ask("So do you want to bark?")
+            userSaidWhy = false
+        }else {
+            users.current.userData.taskTwoReentry++
+            furhat.ask("Okey so do you want to bark?")
+        }
     }
 
     onResponse<Yes> {
@@ -141,13 +174,21 @@ val PersuasionPhaseOneTaskTwo: State = state(Parent) {
         goto(TryingTaskTwo)
     }
 
+    onResponse(whyIntent) {
+        furhat.say("Well, because dogs make me happy!")
+        userSaidWhy = true
+        reentry()
+    }
+
     onResponse<No> {
+        users.current.userData.taskTwoUserSaidNo ++
         furhat.say("Well, what a shame! But I understand that it can be embarrassing, lets move on to the next task instead!")
         furhat.say("I know you will love this one!")
         goto(TaskThree)
     }
 
     onNoResponse {
+        users.current.userData.taskTwoUserNoResponse ++
         reentry()
     }
 }
