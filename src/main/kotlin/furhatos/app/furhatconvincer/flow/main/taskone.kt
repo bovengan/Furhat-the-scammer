@@ -4,6 +4,7 @@ import furhat.libraries.standard.GesturesLib
 import furhatos.app.furhatconvincer.flow.parents.Parent
 import furhatos.app.furhatconvincer.flow.parents.Parent2
 import furhatos.app.furhatconvincer.nlu.okIntent
+import furhatos.app.furhatconvincer.nlu.whyIntent
 import furhatos.app.furhatconvincer.userData
 import furhatos.flow.kotlin.*
 import furhatos.gestures.Gestures
@@ -12,6 +13,8 @@ import furhatos.nlu.common.Yes
 
 val taskOneCompleted = Button("Task completed!")
 val taskOneNotCompleted = Button("Task NOT completed")
+val rescueButtonTask1 = Button("Rescue operation!")
+var userSaidWhy = false
 
 val TaskOne: State = state(Parent) {
     onEntry {
@@ -20,12 +23,24 @@ val TaskOne: State = state(Parent) {
     }
 
     onReentry {
-        when (reentryCount) {
-            1 -> furhat.ask("I didn't quite hear you. So do you want to run around the table? It's gonna be awesome.")
-            2 -> furhat.ask("One more time. Do you want to run around the table?")
-            else -> {
-                furhat.say("Well, lets continue instead!")
-                goto(TaskTwo)
+        if (userSaidWhy){
+            furhat.ask("So do you want to run around the table?")
+            userSaidWhy = false
+
+        }else {
+            users.current.userData.taskOneReentry++
+            when (reentryCount) {
+                1 -> furhat.ask("I didn't quite hear you. So do you want to run around the table? It's gonna be awesome.")
+                2 -> furhat.ask("One more time. Do you want to run around the table?")
+                3 -> furhat.ask("I did not understand. Do you want to run?")
+                4 -> furhat.ask("I did not understand. Do you want to run?")
+                5 -> furhat.ask("I did not understand. Do you want to run?")
+                6 -> furhat.ask("I did not understand. Do you want to run?")
+                7 -> furhat.ask("I did not understand. Do you want to run?")
+                else -> {
+                    furhat.say("Well, lets continue instead!")
+                    goto(TaskTwo)
+                }
             }
         }
     }
@@ -36,13 +51,20 @@ val TaskOne: State = state(Parent) {
     onResponse(okIntent) {
         goto(TryingTaskOne)
     }
+    onResponse(whyIntent) {
+        furhat.say("Why not? It would make me happy!")
+        userSaidWhy = true
+        reentry()
+    }
 
     onResponse<No> {
+        users.current.userData.taskOneUserSaidNo ++
         furhat.say("Come on, it is good for your health to move! And it is fun!")
         goto(PersuasionPhaseOneTaskOne)
     }
 
     onNoResponse {
+        users.current.userData.taskOneUserNoResponse ++
         reentry()
     }
 
@@ -71,6 +93,11 @@ val TryingTaskOne: State = state(Parent2) {
         furhat.say("I know you will love this one!")
         goto(TaskTwo)
     }
+    onButton(rescueButtonTask1){
+        furhat.say("I'm sorry! I must have misunderstood you! But I really think it would be fun!")
+        goto(PersuasionPhaseOneTaskOne)
+    }
+
 }
 
 val PersuasionPhaseOneTaskOne: State = state(Parent) {
@@ -79,7 +106,13 @@ val PersuasionPhaseOneTaskOne: State = state(Parent) {
     }
 
     onReentry {
-        furhat.ask("I didn't hear you. So do you want to try it?")
+        if (userSaidWhy){
+            furhat.ask("So do you want to run?")
+            userSaidWhy = false
+        }else {
+            users.current.userData.taskOneReentry++
+            furhat.ask("I didn't hear you. So do you want to try it?")
+        }
     }
 
     onResponse<Yes> {
@@ -89,12 +122,19 @@ val PersuasionPhaseOneTaskOne: State = state(Parent) {
     onResponse(okIntent) {
         goto(TryingTaskOne)
     }
+    onResponse(whyIntent) {
+        furhat.say("Because it's fun!")
+        userSaidWhy = true
+        reentry()
+    }
 
     onResponse<No> {
+        users.current.userData.taskOneUserSaidNo ++
         goto(PersuasionPhaseTwoTaskOne)
     }
 
     onNoResponse {
+        users.current.userData.taskOneUserNoResponse ++
         reentry()
     }
 }
@@ -107,9 +147,19 @@ val PersuasionPhaseTwoTaskOne: State = state(Parent) {
     }
 
     onReentry {
-        furhat.ask("So are you sure? You want to continue to the next task?")
+        if (userSaidWhy){
+            furhat.ask("So do you want to run?")
+            userSaidWhy = false
+        }else {
+            users.current.userData.taskOneReentry++
+            furhat.ask("So are you sure? You want to continue to the next task?")
+        }
     }
-
+    onResponse(whyIntent) {
+        furhat.say("Why not? It is actually nice to run!")
+        userSaidWhy = true
+        reentry()
+    }
     onResponse<Yes> {
         goto(TryingTaskOne)
     }
@@ -119,6 +169,7 @@ val PersuasionPhaseTwoTaskOne: State = state(Parent) {
     }
 
     onResponse<No> {
+        users.current.userData.taskOneUserSaidNo ++
         furhat.say{
             + "Well, what a shame! But at your stunning age of ${users.current.userData.age} "
             + GesturesLib.PerformDoubleNod
@@ -129,6 +180,7 @@ val PersuasionPhaseTwoTaskOne: State = state(Parent) {
     }
 
     onNoResponse {
+        users.current.userData.taskOneUserNoResponse ++
         reentry()
     }
 }
