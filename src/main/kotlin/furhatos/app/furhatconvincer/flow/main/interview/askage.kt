@@ -17,6 +17,7 @@ val AskAge: State = state(Parent) {
     }
 
     onReentry {
+        users.current.userData.askAgeReentry ++
         if (ageConfirmed) {
             delay(2000)
             furhat.ask("Okay, are you ready now?")
@@ -88,17 +89,17 @@ val AskAge: State = state(Parent) {
     }
 
     onResponse<No> {
-        if (ageConfirmed) {
-            reentry()
-        }
-        furhat.say("Well, i cannot guess that you are 24...")
-    }
-
-    onResponseFailed {
         reentry()
     }
 
+
     onNoResponse {
+        users.current.userData.askAgeUserNoResponse ++
+        reentry()
+    }
+
+    onResponse {
+        users.current.userData.askAgeFurhatNotUnderStood
         reentry()
     }
 }
