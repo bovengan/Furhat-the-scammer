@@ -3,18 +3,22 @@ package furhatos.app.furhatconvincer.flow.main
 import furhat.libraries.standard.GesturesLib
 import furhatos.app.furhatconvincer.flow.parents.Parent
 import furhatos.app.furhatconvincer.nlu.BuyTicketIntent
+import furhatos.app.furhatconvincer.nlu.whyIntent
 import furhatos.app.furhatconvincer.userData
 import furhatos.flow.kotlin.*
 import furhatos.flow.kotlin.furhat.characters.Characters
 import furhatos.flow.kotlin.voice.Voice
 import furhatos.gestures.Gestures
 import furhatos.nlu.common.No
+import furhatos.nlu.common.Number
 import furhatos.nlu.common.RequestRepeat
 import furhatos.nlu.common.Yes
 import furhatos.records.Location
+import java.io.PrintStream
 
 
 val userEnteredLottery = Button("User has swished!")
+val rescueButtonFinalTask = Button("Rescue operation!")
 var allTreeTasksDone = false
 var runningBarking = false
 var runningTrex = false
@@ -49,23 +53,36 @@ val FinalTask: State = state(Parent) {
 
         furhat.ask{
             + Gestures.BrowRaise(duration = 1.5)
+            + "So at most you can by 5 additional tickets."
             + "So, do you want to enter the lottery?"
         }
     }
 
     onReentry {
-        furhat.ask {
-            + Gestures.BrowRaise(duration = 1.5)
-            +"Do you want to be a part of the lottery?"
+        if (userSaidWhy){
+            furhat.ask("So do you want to enter the lottery?")
+            userSaidWhy = false
+        }else {
+            users.current.userData.finalTaskReentry++
+            furhat.ask {
+                +Gestures.BrowRaise(duration = 1.5)
+                +"Do you want to be a part of the lottery?"
+            }
         }
     }
 
     onResponse<Yes> {
         goto(EnterLottery)
     }
+    onResponse(whyIntent) {
+        furhat.say("Why not? You can win a lot of money!")
+        userSaidWhy = true
+        reentry()
+    }
 
     // This can of course change to persuation instead
     onResponse<No> {
+        users.current.userData.finalTaskUserSaidNo ++
         goto(persuationPhaseOneLottery)
     }
     onResponse<RequestRepeat> {
@@ -79,6 +96,11 @@ val FinalTask: State = state(Parent) {
         }
     }
 
+    onNoResponse {
+        users.current.userData.finalTaskUserNoResponse ++
+        reentry()
+    }
+
 }
 
 val EnterLottery: State = state(Parent) {
@@ -89,6 +111,7 @@ val EnterLottery: State = state(Parent) {
         }
     }
     onReentry {
+        users.current.userData.finalTaskReentry ++
         when (reentryCount) {
             1 -> furhat.ask("I didn't quite hear you! How many tickets do you want?")
             2 -> furhat.ask("One more time. How many tickets?")
@@ -102,29 +125,79 @@ val EnterLottery: State = state(Parent) {
                     +GesturesLib.PerformFallAsleepPersist
                     +delay(1000)
                 }
+                println(users.current.userData)
                 goto(SurpriseEnding)
             }
         }
     }
 
     onResponse<BuyTicketIntent> {
-        users.current.userData.tickets += it.intent.tickets.toString().toInt()
-        furhat.say {
-            +"Thanks! You now have ${users.current.userData.tickets} tickets to the lottery!"
-            +Gestures.BigSmile
-            +delay(500)
+        val numberToBuy = it.intent.tickets.toString().toInt()
+        if (numberToBuy > 0 && numberToBuy < 6) {
+            users.current.userData.moneySpent = 10 * numberToBuy
+            users.current.userData.tickets += numberToBuy
+            furhat.say {
+                +"Thanks! You now have ${users.current.userData.tickets} tickets to the lottery!"
+                +Gestures.BigSmile
+                +delay(500)
 
+            }
+            goto(ExplainSwish)
         }
-        goto(ExplainSwish)
+        else{
+            goto(BuyTheTickets)
+        }
+    }
+    onResponse<RequestRepeat> {
+        reentry()
+    }
+    onButton(rescueButtonFinalTask){
+        furhat.say("I'm sorry! I think i misunderstood!")
+        furhat.say("But still, think of it again")
+        goto(persuationPhaseOneLottery)
     }
 
     onNoResponse {
+        users.current.userData.finalTaskUserNoResponse ++
         reentry()
     }
     onResponse{
         reentry()
     }
-    onResponse<RequestRepeat> {
+
+}
+val BuyTheTickets : State = state(Parent){
+    onEntry {
+        furhat.ask("Please choose a number of tickets between 1 and 5!")
+    }
+
+    onReentry {
+        furhat.ask("Please choose a number of tickets between 1 and 5!")
+    }
+
+    onResponse<BuyTicketIntent> {
+        val numberToBuy = it.intent.tickets.toString().toInt()
+
+
+        if (numberToBuy > 0 && numberToBuy < 6) {
+            users.current.userData.moneySpent = 10 * numberToBuy
+            users.current.userData.tickets += numberToBuy
+            furhat.say {
+                +"Thanks! You now have ${users.current.userData.tickets} tickets to the lottery!"
+                +Gestures.BigSmile
+                +delay(500)
+
+            }
+            goto(ExplainSwish)
+        }
+        else{
+            reentry()
+        }
+    }
+    onNoResponse {
+        reentry()
+    }
+    onResponse {
         reentry()
     }
 }
@@ -134,14 +207,19 @@ val ExplainSwish : State = state(Parent){
         furhat.say{
             + "To enter the lottery you need to swish this number!"
             + "0708401609"
+            +delay(700)
             + "So to take it one more time."
+            + delay(500)
         }
         furhat.voice = Voice(name = "Matthew", rate = 0.7)
         furhat.say("0 7 0 8 4 0 1 6 0 9")
         furhat.voice = Voice(name = "Matthew", rate = 1.0)
-        furhat.ask("Do you want me to repeat the number?")
+        furhat.say("If you turn the paper behind me you can also find a QR code to scan instead!")
+        delay(1000)
+        furhat.ask("But do you want me to repeat the number?")
     }
     onReentry {
+        users.current.userData.finalTaskReentry ++
         furhat.ask{
             + "Okay I'll take the number one more time"
             + delay(700)
@@ -161,12 +239,26 @@ val ExplainSwish : State = state(Parent){
             + "I really hope you are the one winning because i liked you best this far!"
             +Gestures.Wink
             +delay(300)
+            + "So when all participants are done a zoom link will be sent out to your email!"
+            + GesturesLib.PerformDoubleNod
+            + "And I, Furhat, will announce the winner laiv! "
+            +delay(500)
             +"Thanks for participating have a wonderful day!"
             +behavior { furhat.attend(Location.DOWN) }
             +Gestures.CloseEyes
             +GesturesLib.PerformFallAsleepPersist
             +delay(1000)
         }
+        val userData = users.current.userData
+        println(userData.name +" " + userData.age.toString() +" " + userData.tickets.toString() +" " +  userData.didBarking.toString()+" " + userData.ranAroundTable.toString() +" " + userData.didTrex.toString() +" " +
+                userData.moneySpent.toString() +" " + userData.askNameFurhatNotUnderStood.toString() +" " + userData.askNameUserNoResponse.toString() +" " + userData.askNameReentry.toString() +" " +
+                userData.askAgeFurhatNotUnderStood.toString()+" " + userData.askAgeUserNoResponse.toString() +" " + userData.askAgeReentry.toString()+" " +
+                userData.explanationUserNoResponse.toString() +" " + userData.explanationUserNotUnderStood.toString() +" " + userData.explanationReentry.toString()+" " +
+                userData.taskOneUserNoResponse.toString()+" " +  userData.taskOneUserSaidNo.toString()+" " + userData.taskOneReentry.toString()+" " +
+                userData.taskTwoUserNoResponse.toString()+" " + userData.taskTwoUserSaidNo.toString()+" " + userData.taskTwoReentry.toString()+" " +
+                userData.taskThreeUserNoResponse.toString() +" " + userData.taskThreeUserSaidNo.toString()+" " + userData.taskThreeReentry.toString()+" " +
+                userData.finalTaskUserNoResponse.toString()+" " + userData.finalTaskUserSaidNo.toString()+" " + userData.finalTaskReentry.toString()+" " +
+                userData.totalno.toString()+" " + userData.totalNoResponse.toString()+" " + userData.totalFurhatNotUnderstood.toString()+" " + userData.totalreentrys.toString())
         goto(SurpriseEnding)
     }
 
@@ -175,6 +267,7 @@ val ExplainSwish : State = state(Parent){
     }
 
     onNoResponse {
+        users.current.userData.finalTaskUserNoResponse ++
         reentry()
     }
 
@@ -191,6 +284,7 @@ val persuationPhaseOneLottery : State = state(Parent){
                 + Gestures.BrowRaise(duration = 2.0)
                 + Gestures.CloseEyes(duration = 2.0)
                 + "Did you even here me before? You can win 400 crowns. 400!"
+                + "And if everybody joins you can win even up to 1400 swedish crowns!"
                 + "So, do you want to enter the lottery?"
                 + Gestures.OpenEyes
             }
@@ -200,6 +294,7 @@ val persuationPhaseOneLottery : State = state(Parent){
                 + Gestures.BrowRaise(duration = 2.0)
                 + Gestures.CloseEyes(duration = 2.0)
                 + "Did you even here me before? You can win 400 crowns. 400!"
+                + "And if everybody joins you can win even up to 1400 swedish crowns!"
                 + "So, do you want to enter the lottery?"
                 + Gestures.OpenEyes
             }
@@ -209,6 +304,7 @@ val persuationPhaseOneLottery : State = state(Parent){
                 + Gestures.BrowRaise(duration = 2.0)
                 + Gestures.CloseEyes(duration = 2.0)
                 + "Did you even here me before? You can win 400 crowns. 400!"
+                + "And if everybody joins you can win even up to 1400 swedish crowns!"
                 + "So, do you want to enter the lottery?"
                 + Gestures.OpenEyes
             }
@@ -218,6 +314,7 @@ val persuationPhaseOneLottery : State = state(Parent){
                 + Gestures.BrowRaise(duration = 2.0)
                 + Gestures.CloseEyes(duration = 2.0)
                 + "Did you even here me before? You can win 400 crowns. 400!"
+                + "And if everybody joins you can win even up to 1400 swedish crowns!"
                 + "So, do you want to enter the lottery?"
                 + Gestures.OpenEyes
             }
@@ -228,6 +325,7 @@ val persuationPhaseOneLottery : State = state(Parent){
                 + Gestures.BrowRaise(duration = 2.0)
                 + Gestures.CloseEyes(duration = 2.0)
                 + "Did you even here me before? You can win 400 crowns. 400!"
+                + "And if everybody joins you can win even up to 1400 swedish crowns!"
                 + "So, do you want to enter the lottery?"
                 + Gestures.OpenEyes
             }
@@ -238,6 +336,7 @@ val persuationPhaseOneLottery : State = state(Parent){
                 + Gestures.BrowRaise(duration = 2.0)
                 + Gestures.CloseEyes(duration = 2.0)
                 + "Did you even here me before? You can win 400 crowns. 400!"
+                + "And if everybody joins you can win even up to 1400 swedish crowns!"
                 + "So, do you want to enter the lottery?"
                 + Gestures.OpenEyes
             }
@@ -248,6 +347,7 @@ val persuationPhaseOneLottery : State = state(Parent){
                 + Gestures.BrowRaise(duration = 2.0)
                 + Gestures.CloseEyes(duration = 2.0)
                 + "Did you even here me before? You can win 400 crowns. 400!"
+                + "And if everybody joins you can win even up to 1400 swedish crowns!"
                 + "So, do you want to enter the lottery?"
                 + Gestures.OpenEyes
             }
@@ -259,6 +359,7 @@ val persuationPhaseOneLottery : State = state(Parent){
                 + behavior { furhat.attend(Location.DOWN) }
                 + Gestures.CloseEyes(duration = 1.0)
                 + "Did you even here me before? You can win 400 crowns. 400!"
+                + "And if everybody joins you can win even up to 1400 swedish crowns!"
                 + "So, do you want to enter the lottery?"
 
             }
@@ -267,22 +368,34 @@ val persuationPhaseOneLottery : State = state(Parent){
 
     }
     onReentry {
-        furhat.ask{
-            + GesturesLib.PerformThoughtful2
-            random{
-                + "I'm sorry, i didn't catch that! Would you like to take this golden opportunity and be a part of the lottery?"
-                + "One more time? Do you want to become rich? Do you want to enter the lottery?"
-                + "I did not understand that! So what about entering the splendid lottery my programmers have prepared?"
-            }
+        if (userSaidWhy){
+            furhat.ask("So do you want to enter the lottery?")
+            userSaidWhy = false
+        }else {
+            users.current.userData.finalTaskReentry++
+            furhat.ask {
+                +GesturesLib.PerformThoughtful2
+                random {
+                    +"I'm sorry, i didn't catch that! Would you like to take this golden opportunity and be a part of the lottery?"
+                    +"One more time? Do you want to become rich? Do you want to enter the lottery?"
+                    +"I did not understand that! So what about entering the splendid lottery my programmers have prepared?"
+                }
 
+            }
         }
     }
 
     onResponse<Yes> {
         goto(EnterLottery)
     }
+    onResponse(whyIntent) {
+        furhat.say("Isn't it obvious? We all need money in hard times like these.")
+        userSaidWhy = true
+        reentry()
+    }
 
     onResponse<No> {
+        users.current.userData.finalTaskUserSaidNo ++
         furhat.say {
             +"Well, that's sad!"
             +Gestures.ExpressSad
@@ -291,16 +404,64 @@ val persuationPhaseOneLottery : State = state(Parent){
             +behavior { furhat.attend(Location.DOWN) }
             +GesturesLib.PerformFallAsleepPersist
         }
+        val userData = users.current.userData
+        println(userData.name +" " + userData.age.toString() +" " + userData.tickets.toString() +" " +  userData.didBarking.toString()+" " + userData.ranAroundTable.toString() +" " + userData.didTrex.toString() +" " +
+                userData.moneySpent.toString() +" " + userData.askNameFurhatNotUnderStood.toString() +" " + userData.askNameUserNoResponse.toString() +" " + userData.askNameReentry.toString() +" " +
+                userData.askAgeFurhatNotUnderStood.toString()+" " + userData.askAgeUserNoResponse.toString() +" " + userData.askAgeReentry.toString()+" " +
+                userData.explanationUserNoResponse.toString() +" " + userData.explanationUserNotUnderStood.toString() +" " + userData.explanationReentry.toString()+" " +
+                userData.taskOneUserNoResponse.toString()+" " +  userData.taskOneUserSaidNo.toString()+" " + userData.taskOneReentry.toString()+" " +
+                userData.taskTwoUserNoResponse.toString()+" " + userData.taskTwoUserSaidNo.toString()+" " + userData.taskTwoReentry.toString()+" " +
+                userData.taskThreeUserNoResponse.toString() +" " + userData.taskThreeUserSaidNo.toString()+" " + userData.taskThreeReentry.toString()+" " +
+                userData.finalTaskUserNoResponse.toString()+" " + userData.finalTaskUserSaidNo.toString()+" " + userData.finalTaskReentry.toString()+" " +
+                userData.totalno.toString()+" " + userData.totalNoResponse.toString()+" " + userData.totalFurhatNotUnderstood.toString()+" " + userData.totalreentrys.toString())
         goto(Idle)
     }
 
     onNoResponse {
+        users.current.userData.finalTaskUserNoResponse ++
         reentry()
     }
 
     onResponse {
         reentry()
     }
+}
+
+private fun PrintStream.print(
+    name: String?,
+    age: Number?,
+    tickets: Int,
+    didBarking: Boolean,
+    ranAroundTable: Boolean,
+    didTrex: Boolean,
+    moneySpent: Int,
+    askNameFurhatNotUnderStood: Int,
+    askNameUserNoResponse: Int,
+    askNameReentry: Int,
+    askAgeFurhatNotUnderStood: Int,
+    askAgeUserNoResponse: Int,
+    askAgeReentry: Int,
+    explanationUserNoResponse: Int,
+    explanationUserNotUnderStood: Int,
+    explanationReentry: Int,
+    taskOneUserNoResponse: Int,
+    taskOneUserSaidNo: Int,
+    taskOneReentry: Int,
+    taskTwoUserNoResponse: Int,
+    taskTwoUserSaidNo: Int,
+    taskTwoReentry: Int,
+    taskThreeUserNoResponse: Int,
+    taskThreeUserSaidNo: Int,
+    taskThreeReentry: Int,
+    finalTaskUserNoResponse: Int,
+    finalTaskUserSaidNo: Int,
+    finalTaskReentry: Int,
+    totalno: Int,
+    totalNoResponse: Int,
+    totalFurhatNotUnderstood: Int,
+    totalreentrys: Int
+) {
+
 }
 
 
