@@ -10,16 +10,20 @@ import furhatos.nlu.common.Greeting
 
 val Greeting: State = state(Parent) {
     onEntry {
+        println("Are we here?")
         furhat.setCharacter(Characters.Adult.Alex)
         furhat.ledStrip.solid(java.awt.Color(0,0,0))
         furhat.voice = Voice("Matthew")
         furhat.gesture(Gestures.Smile(duration = 2.0))
+
         random(
             { furhat.ask("Hi there") },
             { furhat.ask("Hello there") }
         )
+        println("All the way to the end")
     }
     onResponse<Greeting> {
+        println("And then here?")
         goto(AskName)
     }
     onResponseFailed {
