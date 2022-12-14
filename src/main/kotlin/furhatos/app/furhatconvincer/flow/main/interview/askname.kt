@@ -15,6 +15,7 @@ val AskName: State = state(Parent) {
     }
 
     onReentry {
+        users.current.userData.askNameReentry ++
         furhat.gesture(Gestures.Oh(duration = 1.5))
         random(
             { furhat.ask("I am sorry, I did not quite understand what you said, what is your name?") },
@@ -54,13 +55,12 @@ val AskName: State = state(Parent) {
     }
 
 
-    onResponseFailed {
-        reentry()
-    }
     onNoResponse {
+        users.current.userData.askNameUserNoResponse ++
         reentry()
     }
     onResponse {
+        users.current.userData.askNameFurhatNotUnderStood ++
         reentry()
     }
 }
