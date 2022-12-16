@@ -86,7 +86,7 @@ val TaskTwo: State = state(Parent) {
 val TryingTaskTwo: State = state(Parent2) {
     onEntry {
         furhat.say {
-            +"Great! I'm listening! Ready to hear som barking when you are ready!"
+            +"Great! I'm listening! Ready to hear some barking when you are ready!"
             +GesturesLib.PerformBigSmile1
         }
     }
