@@ -5,9 +5,11 @@ import furhatos.nlu.SimpleIntent
 import furhatos.nlu.common.Number
 import furhatos.util.Language
 
-val whyIntent = SimpleIntent("Why?", "Why would I?", "Why should I?", "Why should I do that?", "Why would I do that?", "Why, I don't want to!")
+val whyIntent = SimpleIntent("Why?", "Why would I?", "Why should I?", "Why should I do that?",
+    "Why would I do that?", "Why, I don't want to!", "Why do you want to know my name?", "Why do you want to know my age?")
 
-val okIntent = SimpleIntent("Okey", "Ok", "Okey, I can do it!", "Okey, I'll do it!", "Well, I'll do it!")
+val okIntent = SimpleIntent("Okey", "Okay","Ok", "Okey, I can do it!", "Okey, I'll do it!", "Well, I'll do it!",
+    "Of course!", "Off course", "Okay then", "Okay, I can do it!", "Okay, I'll do it!")
 
 class JustName(val name: SubjectsNames? = null) : Intent() {
     override fun getExamples(lang: Language): List<String> {
@@ -52,10 +54,3 @@ class RepeatInstructions(val answer: RepeatInstructionsAnswers? = null) : Intent
         )
     }
 }
-
-
-//class TellName(val name : String? = null) : Intent() {
-//    override fun getExamples(lang:Language): List<String> {
-//        return listOf("@name", "My name is @name", "I'm @name")
-  //  }
-//}
