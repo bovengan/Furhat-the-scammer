@@ -60,5 +60,3 @@ class UserData(
 
 val User.userData : UserData
     get() = data.getOrPut(UserData::class.qualifiedName, UserData())
-
-
