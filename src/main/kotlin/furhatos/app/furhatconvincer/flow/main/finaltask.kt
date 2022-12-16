@@ -46,9 +46,9 @@ val FinalTask: State = state(Parent) {
             furhat.say{
                 + behavior { GesturesLib.PerformWinkAndSmileWithDelay() }
                 + "And by the way, great job this far! "
-                + "You now have ${users.current.userData.tickets} lottery tickets thanks to the previous completed tasks."
+                + "You now have ${users.current.userData.tickets} lottery tickets as a bonus if you enter the lottery. Thanks to the previous completed tasks."
             }
-            furhat.say("If you pay for one ticket and since you already have ${users.current.userData.tickets} tickets you would have ${users.current.userData.tickets + 1} tickets")
+            furhat.say("If you pay for at least one ticket you would also get ${users.current.userData.tickets} tickets as the bonus and you would have ${users.current.userData.tickets + 1} tickets in total.")
         }
 
         furhat.ask{
@@ -194,6 +194,12 @@ val BuyTheTickets : State = state(Parent){
             reentry()
         }
     }
+
+    onButton(rescueButtonFinalTask){
+        furhat.say("I'm sorry! I think i misunderstood!")
+        furhat.say("But still, think of it again")
+        goto(persuationPhaseOneLottery)
+    }
     onNoResponse {
         reentry()
     }
@@ -250,7 +256,11 @@ val ExplainSwish : State = state(Parent){
             +delay(1000)
         }
         val userData = users.current.userData
-        println(userData.name +" " + userData.age.toString() +" " + userData.tickets.toString() +" " +  userData.didBarking.toString()+" " + userData.ranAroundTable.toString() +" " + userData.didTrex.toString() +" " +
+        userData.totalno= userData.taskOneUserSaidNo + userData.taskTwoUserSaidNo + userData.taskThreeUserSaidNo + userData.finalTaskUserSaidNo
+        userData.totalNoResponse = userData.askNameUserNoResponse + userData.askAgeUserNoResponse + userData.explanationUserNoResponse + userData.taskOneUserNoResponse + userData.taskTwoUserNoResponse + userData.taskThreeUserNoResponse + userData.finalTaskUserNoResponse
+        userData.totalFurhatNotUnderstood = userData.askNameFurhatNotUnderStood + userData.askAgeFurhatNotUnderStood
+        userData.totalreentrys = userData.askNameReentry + userData.askAgeReentry + userData.explanationReentry + userData.taskOneReentry + userData.taskTwoReentry + userData.taskThreeReentry + userData.finalTaskReentry
+        println(userData.name +" " + userData.age.toString() +" " + userData.tickets.toString() +" " + userData.ranAroundTable.toString() +" " +  userData.didBarking.toString()+" "  + userData.didTrex.toString() +" " +
                 userData.moneySpent.toString() +" " + userData.askNameFurhatNotUnderStood.toString() +" " + userData.askNameUserNoResponse.toString() +" " + userData.askNameReentry.toString() +" " +
                 userData.askAgeFurhatNotUnderStood.toString()+" " + userData.askAgeUserNoResponse.toString() +" " + userData.askAgeReentry.toString()+" " +
                 userData.explanationUserNoResponse.toString() +" " + userData.explanationUserNotUnderStood.toString() +" " + userData.explanationReentry.toString()+" " +
@@ -405,7 +415,11 @@ val persuationPhaseOneLottery : State = state(Parent){
             +GesturesLib.PerformFallAsleepPersist
         }
         val userData = users.current.userData
-        println(userData.name +" " + userData.age.toString() +" " + userData.tickets.toString() +" " +  userData.didBarking.toString()+" " + userData.ranAroundTable.toString() +" " + userData.didTrex.toString() +" " +
+        userData.totalno= userData.taskOneUserSaidNo + userData.taskTwoUserSaidNo + userData.taskThreeUserSaidNo + userData.finalTaskUserSaidNo
+        userData.totalNoResponse = userData.askNameUserNoResponse + userData.askAgeUserNoResponse + userData.explanationUserNoResponse + userData.taskOneUserNoResponse + userData.taskTwoUserNoResponse + userData.taskThreeUserNoResponse + userData.finalTaskUserNoResponse
+        userData.totalFurhatNotUnderstood = userData.askNameFurhatNotUnderStood + userData.askAgeFurhatNotUnderStood
+        userData.totalreentrys = userData.askNameReentry + userData.askAgeReentry + userData.explanationReentry + userData.taskOneReentry + userData.taskTwoReentry + userData.taskThreeReentry + userData.finalTaskReentry
+        println(userData.name +" " + userData.age.toString() +" " + userData.tickets.toString() +" " + userData.ranAroundTable.toString() +" " +  userData.didBarking.toString()+" " +  userData.didTrex.toString() +" " +
                 userData.moneySpent.toString() +" " + userData.askNameFurhatNotUnderStood.toString() +" " + userData.askNameUserNoResponse.toString() +" " + userData.askNameReentry.toString() +" " +
                 userData.askAgeFurhatNotUnderStood.toString()+" " + userData.askAgeUserNoResponse.toString() +" " + userData.askAgeReentry.toString()+" " +
                 userData.explanationUserNoResponse.toString() +" " + userData.explanationUserNotUnderStood.toString() +" " + userData.explanationReentry.toString()+" " +
@@ -425,43 +439,6 @@ val persuationPhaseOneLottery : State = state(Parent){
     onResponse {
         reentry()
     }
-}
-
-private fun PrintStream.print(
-    name: String?,
-    age: Number?,
-    tickets: Int,
-    didBarking: Boolean,
-    ranAroundTable: Boolean,
-    didTrex: Boolean,
-    moneySpent: Int,
-    askNameFurhatNotUnderStood: Int,
-    askNameUserNoResponse: Int,
-    askNameReentry: Int,
-    askAgeFurhatNotUnderStood: Int,
-    askAgeUserNoResponse: Int,
-    askAgeReentry: Int,
-    explanationUserNoResponse: Int,
-    explanationUserNotUnderStood: Int,
-    explanationReentry: Int,
-    taskOneUserNoResponse: Int,
-    taskOneUserSaidNo: Int,
-    taskOneReentry: Int,
-    taskTwoUserNoResponse: Int,
-    taskTwoUserSaidNo: Int,
-    taskTwoReentry: Int,
-    taskThreeUserNoResponse: Int,
-    taskThreeUserSaidNo: Int,
-    taskThreeReentry: Int,
-    finalTaskUserNoResponse: Int,
-    finalTaskUserSaidNo: Int,
-    finalTaskReentry: Int,
-    totalno: Int,
-    totalNoResponse: Int,
-    totalFurhatNotUnderstood: Int,
-    totalreentrys: Int
-) {
-
 }
 
 
