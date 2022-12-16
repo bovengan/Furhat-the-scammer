@@ -40,7 +40,7 @@ val TaskThree: State = state(Parent) {
             users.current.userData.taskThreeReentry++
             when (reentryCount) {
                 1 -> furhat.ask(
-                    "I didn't quite hear you. Soo do you want scare the people working out there?" +
+                    "I didn't quite hear you. Soo do you want to scare the people working out there?" +
                             " Do you want to pretend to be a T-rex out in the corridor?"
                 )
                 2 -> furhat.ask("One more time. Do you want to be a T-rex? out in the corridor")
@@ -100,13 +100,13 @@ val TryingTaskThree: State = state(Parent2) {
 
     onButton(taskThreeCompleted) {
         furhat.attend(users.current)
-        furhat.voice = Voice(gender = Gender.MALE, language = Language.DANISH, pitch = "high", rate = 1.0)
+        //furhat.voice = Voice(gender = Gender.MALE, language = Language.DANISH, pitch = "high", rate = 1.0)
         furhat.say {
             +GesturesLib.PerformShock1
             +"HELP, do not come closer! I am convinced you are a T-rex now!"
             + delay(1000)
         }
-        furhat.voice = PollyVoice.Matthew()
+        //furhat.voice = PollyVoice.Matthew()
         furhat.say{
             + Gestures.GazeAway(duration = 1.7)
             +"Oh sorry, i lost it again! But well done i guess! Lets move on to the final task!"
@@ -180,7 +180,7 @@ val PersuasionPhaseOneTaskThree: State = state(Parent) {
             userSaidWhy = false
         }else {
             users.current.userData.taskThreeReentry++
-            furhat.ask("So are you sure? Do you want to be a T-rex?")
+            furhat.ask(" Okey, so  do you want to be a T-rex?")
         }
     }
 
