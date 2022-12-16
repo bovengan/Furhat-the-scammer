@@ -21,6 +21,7 @@ class SubjectsNames : EnumEntity(stemming = true, speechRecPhrases = true) {
             "Lisa",
             "Liza",
             "Daniel",
+            "Emil",
             "Erik",
             "Adrian",
             "Noel",
@@ -51,7 +52,15 @@ class SubjectsNames : EnumEntity(stemming = true, speechRecPhrases = true) {
             "Richard",
             "Olivia",
             "Hania",
-            "Kristian"
+            "Kristian",
+            "Ture",
+            "Tor",
+            "Elias",
+            "Audrey",
+            "Audri",
+            "Amanda",
+            "Victoria",
+            "Janni"
         )
     }
 }
